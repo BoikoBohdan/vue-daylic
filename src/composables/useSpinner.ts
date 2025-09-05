@@ -2,23 +2,20 @@ import { ref, computed, onUnmounted } from 'vue'
 import useTeamStore from '@/stores/teamStore'
 
 interface SpinnerSector {
-  id: number
+  id: string
   label: string
   color: string
   probability: number
+  startAngle: number
+  endAngle: number
+  centerAngle: number
 }
 
-// Hardcoded sectors
-const sectors: SpinnerSector[] = [
-  { id: 1, label: 'Pizza', color: '#FF6B6B', probability: 25 },
-  { id: 2, label: 'Burger', color: '#4ECDC4', probability: 25 },
-  { id: 3, label: 'Sushi', color: '#45B7D1', probability: 25 },
-  { id: 4, label: 'Salad', color: '#96CEB4', probability: 25 },
-]
+// Default colors for team members
+const defaultColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF', '#5F27CD']
 
 export function useSpinner() {
   const teamStore = useTeamStore()
-  console.log(teamStore.team)
 
   // Spinner state
   const isSpinning = ref(false)
@@ -30,17 +27,26 @@ export function useSpinner() {
 
   // Calculate sector angles
   const sectorAngles = computed(() => {
-    const totalProbability = teamStore.team.length * 100
+    const teamMembers = teamStore.team.filter(member => !member.wasSelected && member.isPresent)
+    
+    if (teamMembers.length === 0) {
+      return []
+    }
+
+    const totalProbability = teamMembers.length * 100
     let currentAngle = 0
 
-    return teamStore.team.map((sector) => {
+    return teamMembers.map((member, index) => {
       const angle = (100 / totalProbability) * 360
       const startAngle = currentAngle
       const endAngle = currentAngle + angle
       currentAngle += angle
 
       return {
-        ...sector,
+        id: member.id,
+        label: member.fullName,
+        color: defaultColors[index % defaultColors.length],
+        probability: 100,
         startAngle,
         endAngle,
         centerAngle: (startAngle + endAngle) / 2,
@@ -49,19 +55,12 @@ export function useSpinner() {
   })
 
   // Get random sector based on probabilities
-  const getRandomSector = (): SpinnerSector => {
-    const totalProbability = teamStore.team.length * 100
-    const random = Math.random() * totalProbability
+  const getRandomSector = (): SpinnerSector | null => {
+    const sectors = sectorAngles.value
+    if (sectors.length === 0) return null
 
-    let currentSum = 0
-    for (const sector of sectors) {
-      currentSum += sector.probability
-      if (random <= currentSum) {
-        return sector
-      }
-    }
-
-    return sectors[0]
+    const randomIndex = Math.floor(Math.random() * sectors.length)
+    return sectors[randomIndex]
   }
 
   let startTime = 0
@@ -95,14 +94,17 @@ export function useSpinner() {
   const startSpin = () => {
     if (isSpinning.value) return
 
+    const sectors = sectorAngles.value
+    if (sectors.length === 0) return
+
     isSpinning.value = true
     winningSector.value = null
 
     // Calculate random target rotation
     const randomSector = getRandomSector()
-    const sectorAngle = sectorAngles.value.find((s) => s.id === randomSector.id)!
-    const targetAngle = 360 * 5 + sectorAngle.centerAngle // 5 full rotations + sector center
+    if (!randomSector) return
 
+    const targetAngle = 360 * 5 + randomSector.centerAngle // 5 full rotations + sector center
     targetRotation.value = targetAngle
     currentRotation.value = 0
 

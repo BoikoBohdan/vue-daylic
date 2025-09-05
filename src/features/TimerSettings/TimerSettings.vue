@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useTimerStore } from '@/stores/timerStore'
 
 const timerStore = useTimerStore()
-let timer
+let timer: number | null = null
 const { minutes, seconds, status } = storeToRefs(timerStore)
 const currentTime = ref({
   minutes: minutes.value,
@@ -36,7 +36,7 @@ const startTimer = () => {
   timer = setInterval(() => {
     console.log(currentTime.value.minutes, currentTime.value.seconds)
     if (currentTime.value.minutes === 0 && currentTime.value.seconds === 0) {
-      clearInterval(timer)
+      if (timer) clearInterval(timer)
       timerStore.stopTimer()
     } else if (currentTime.value.minutes > 0 && currentTime.value.seconds === 0) {
       currentTime.value.minutes--
@@ -49,7 +49,7 @@ const startTimer = () => {
 }
 
 const pauseTimer = () => {
-  clearInterval(timer)
+  if (timer) clearInterval(timer)
   timerStore.pauseTimer()
 }
 
@@ -57,7 +57,7 @@ const stopTimer = () => {
   currentTime.value.minutes = timerStore.minutes
   currentTime.value.seconds = timerStore.seconds
   timerStore.stopTimer()
-  clearInterval(timer)
+  if (timer) clearInterval(timer)
 }
 
 // Format time display

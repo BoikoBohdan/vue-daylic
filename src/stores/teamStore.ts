@@ -10,12 +10,24 @@ interface TeamMember {
   wasSelected: boolean
 }
 
-const useTeamStore = defineStore<string, { team: TeamMember[] }>('team', {
-  state: () => ({
+interface TeamState {
+  team: TeamMember[]
+}
+
+interface TeamActions {
+  addMember(member: Omit<TeamMember, 'id' | 'isPresent' | 'wasSelected'>): void
+  removeMember(id: string): void
+  togglePresence(id: string): void
+  toggleSelection(id: string): void
+  resetSelections(): void
+}
+
+const useTeamStore = defineStore<string, TeamState, {}, TeamActions>('team', {
+  state: (): TeamState => ({
     team: [],
   }),
   actions: {
-    addMember(member: TeamMember) {
+    addMember(member: Omit<TeamMember, 'id' | 'isPresent' | 'wasSelected'>) {
       const uuid = crypto.randomUUID()
       this.team.push({ ...member, id: uuid, isPresent: true, wasSelected: false })
     },

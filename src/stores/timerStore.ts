@@ -3,8 +3,22 @@ import { defineStore } from 'pinia'
 const DEFAULT_MINUTES = 2
 const DEFAULT_SECONDS = 0
 
-export const useTimerStore = defineStore('timer', {
-  state: () => ({
+interface TimerState {
+  minutes: number
+  seconds: number
+  status: 'stopped' | 'running' | 'paused' | 'ready'
+}
+
+interface TimerActions {
+  setTimer(minutes: number, seconds: number): void
+  startTimer(): void
+  pauseTimer(): void
+  stopTimer(): void
+  resetTimer(): void
+}
+
+export const useTimerStore = defineStore<string, TimerState, {}, TimerActions>('timer', {
+  state: (): TimerState => ({
     minutes: DEFAULT_MINUTES,
     seconds: DEFAULT_SECONDS,
     status: 'stopped',
