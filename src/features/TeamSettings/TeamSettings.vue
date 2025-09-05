@@ -62,7 +62,7 @@ const closeAddMemberModal = () => {
             <span class="selection-icon">✓</span>
           </button>
           <button class="remove-member-btn">
-            <span class="remove-icon">×</span>
+            <span class="remove-icon" @click="teamStore.removeMember(member.id)">×</span>
           </button>
         </div>
       </div>
