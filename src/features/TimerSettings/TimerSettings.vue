@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTimerStore } from '@/stores/timerStore'
+import { Timer, TimerPip } from './utils'
 
 const timerStore = useTimerStore()
-let timer: number | null = null
+const timer = new Timer({})
+const timerPip = new TimerPip()
+
 const { minutes, seconds, status } = storeToRefs(timerStore)
 const currentTime = ref({
   minutes: minutes.value,
@@ -16,7 +19,6 @@ watch([minutes, seconds], ([newMinutes, newSeconds]) => {
 })
 
 const updateTimer = (value: 'minutes' | 'seconds', operation: 'increment' | 'decrement') => {
-  console.log(value, operation)
   if (value === 'minutes') {
     if (operation === 'increment' && minutes.value < 59) {
       timerStore.setTimer(minutes.value + 1, seconds.value)
@@ -33,37 +35,43 @@ const updateTimer = (value: 'minutes' | 'seconds', operation: 'increment' | 'dec
 }
 
 const startTimer = () => {
-  timer = setInterval(() => {
-    console.log(currentTime.value.minutes, currentTime.value.seconds)
-    if (currentTime.value.minutes === 0 && currentTime.value.seconds === 0) {
-      if (timer) clearInterval(timer)
-      timerStore.stopTimer()
-    } else if (currentTime.value.minutes > 0 && currentTime.value.seconds === 0) {
-      currentTime.value.minutes--
-      currentTime.value.seconds = 59
-    } else {
-      currentTime.value.seconds--
-    }
-  }, 1000)
-  timerStore.startTimer()
+  status.value = 'running'
+  timer.stop()
+  timer.start(currentTime.value.minutes, currentTime.value.seconds)
+  timerPip.showPip()
+  timer.onFinishSubscribe(() => {
+    document.title = 'Sync - Time’s up!'
+    currentTime.value.minutes = minutes.value
+    currentTime.value.seconds = seconds.value
+    status.value = 'stopped'
+    timerPip.destroy()
+  })
+  timer.onTickSubscribe((minutes, seconds) => {
+    document.title = `Sync -Timer -${minutes}:${seconds.toString().padStart(2, '0')}`
+    currentTime.value.minutes = minutes
+    currentTime.value.seconds = seconds
+    timerPip.drawPip(minutes, seconds)
+  })
 }
 
 const pauseTimer = () => {
-  if (timer) clearInterval(timer)
-  timerStore.pauseTimer()
+  timer.pause()
+  status.value = 'paused'
 }
 
 const stopTimer = () => {
-  currentTime.value.minutes = timerStore.minutes
-  currentTime.value.seconds = timerStore.seconds
-  timerStore.stopTimer()
-  if (timer) clearInterval(timer)
+  timer.stop()
 }
 
-// Format time display
 const formatTime = (mins: number, secs: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
 }
+
+onMounted(() => {
+  timer.stop()
+  status.value = 'stopped'
+})
+
 </script>
 
 <template>
