@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { MatrixWinner } from '@/components'
-import { TeamSettings, TimerSettings } from '@/features'
+import { TimerSettingsController, TeamSettings } from '@/features'
 import useTeamStore from '@/stores/teamStore'
 
 const teamStore = useTeamStore()
-
 const availableTeamMembers = computed(() => {
   return teamStore.team
     .filter((member) => !member.wasSelected && member.isPresent)
@@ -28,7 +27,7 @@ const handleWinnerSelected = (winnerName: string) => {
     <!-- Main Content Section -->
     <div class="main-section">
       <div class="section-header">
-        <TimerSettings />
+        <TimerSettingsController />
       </div>
 
       <div class="section-content">

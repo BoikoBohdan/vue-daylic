@@ -1,0 +1,16 @@
+.timer-controller {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .timer-controller {
+    padding: 0.75rem;
+  }
+
+  .pip-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.8rem;
+  }
+}

@@ -1,8 +1,6 @@
 .matrix-winner {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2rem;
   padding: 2rem;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
   border-radius: 1rem;
@@ -15,18 +13,12 @@
   margin: 0 auto;
 }
 
-.button-group {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
 .matrix-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 1.5rem 3rem;
+  padding: 0.5rem 2rem;
   border: 2px solid #00ff41;
   border-radius: 0.5rem;
   font-weight: bold;
@@ -100,14 +92,14 @@
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 600px;
+  min-height: 300px;
 }
 
 /* 10 Squares Grid */
 .squares-grid {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: calc(50% + 40px);
   transform: translate(-50%, -50%);
   display: flex;
   gap: 1rem;
@@ -115,8 +107,8 @@
 }
 
 .square {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   border: 2px solid #00ff41;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
@@ -182,7 +174,7 @@
 
 .winner-text {
   position: absolute;
-  bottom: 2rem;
+  bottom: -1rem;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;

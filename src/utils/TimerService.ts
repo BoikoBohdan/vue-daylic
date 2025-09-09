@@ -33,7 +33,7 @@ const _runTimerInternal = ({ state, onFinish, onTick }: InternalTimerOptions): v
   }
 }
 
-export class Timer {
+export class TimerService {
   private state: TimerScopedState
   private onTickSubscribers: ((minutes: number, seconds: number) => void)[] = []
   private onFinishSubscribers: (() => void)[] = []
